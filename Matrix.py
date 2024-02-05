@@ -1,298 +1,85 @@
-import random
+from colors import bcolors
+import numpy as np
+
+"""
+Function that find the inverse of non-singular matrix
+The function performs elementary row operations to transform it into the identity matrix. 
+The resulting identity matrix will be the inverse of the input matrix if it is non-singular.
+ If the input matrix is singular (i.e., its diagonal elements become zero during row operations), it raises an error.
+"""
+def row_addition_elementary_matrix(size, target_row, source_row, scalar):
+    # Create an identity matrix
+    elementary_matrix = np.identity(size)
+    # Modify the corresponding elements to achieve row addition
+    elementary_matrix[target_row, source_row] = scalar
+    return elementary_matrix
+
+def scalar_multiplication_elementary_matrix(size, row, scalar):
+    # Create an elementary matrix with the specified scalar multiplication
+    elementary_matrix = np.identity(size)
+    elementary_matrix[row, row] = scalar
+    return elementary_matrix
+
+def solve_linear_system(coeff_matrix, b_vector):
+    try:
+        x_vector = np.linalg.solve(coeff_matrix, b_vector)
+        return x_vector
+    except np.linalg.LinAlgError:
+        raise ValueError("System of equations is singular or not square, cannot be solved.")
 
 
-def split(array):
-    return [char for char in array]
+def matrix_inverse(matrix):
+    print(bcolors.OKBLUE, f"=================== Finding the inverse of a non-singular matrix using elementary row operations ===================\n {matrix}\n", bcolors.ENDC)
+    if matrix.shape[0] != matrix.shape[1]:
+        raise ValueError("Input matrix must be square.")
+
+    n = matrix.shape[0]
+    identity = np.identity(n)
+
+    # Perform row operations to transform the input matrix into the identity matrix
+    for i in range(n):
+        if matrix[i, i] == 0:
+            raise ValueError("Matrix is singular, cannot find its inverse.")
+
+        if matrix[i, i] != 1:
+            # Scale the current row to make the diagonal element 1
+            scalar = 1.0 / matrix[i, i]
+            elementary_matrix = scalar_multiplication_elementary_matrix(n, i, scalar)
+            print(f"elementary matrix to make the diagonal element 1 :\n {elementary_matrix} \n")
+            matrix = np.matmul(elementary_matrix, matrix)
+            print(f"The matrix after elementary operation :\n {matrix}")
+            print(bcolors.OKGREEN, "------------------------------------------------------------------------------------------------------------------",  bcolors.ENDC)
+            identity = np.matmul(elementary_matrix, identity)
+
+        # Zero out the elements above and below the diagonal
+        for j in range(n):
+            if i != j:
+                scalar = -matrix[j, i]
+                elementary_matrix = row_addition_elementary_matrix(n, j, i, scalar)
+                print(f"elementary matrix for R{j+1} = R{j+1} + ({scalar}R{i+1}):\n {elementary_matrix} \n")
+                matrix = np.matmul(elementary_matrix, matrix)
+                print(f"The matrix after elementary operation :\n {matrix}")
+                print(bcolors.OKGREEN, "------------------------------------------------------------------------------------------------------------------",
+                      bcolors.ENDC)
+                identity = np.matmul(elementary_matrix, identity)
+
+    return identity
 
 
-def lottery(id_num):
-    z=int(random.choice(split(id_num)))
-    n=z%12
-    print("The choice is :",n+19)
+if __name__ == '__main__':
 
+    A = np.array([[1, 0, 2],
+                  [2, -1, 3],
+                  [4, 1, 8]])
 
-def final(matrix,elemtary):
-    for i in range(len(matrix)):
-        if matrix[i][i]!=1:
+    b = np.array([1, 2, 3])
 
-            j=i+1
-            size=len(matrix)
-            temp = 1 / matrix[i][i]
-            elemtary[i][i] = temp
-            savedmatrix(elemtary)
-            temp=matrix
-            matrix = mult(elemtary, matrix)
-            printelementary2(elemtary,temp,matrix)
-            elemtary = elemteryreset(matrix)
-            pivot=matrix[i][i]
-            while j<size:
-                if matrix[j][i] != 0:
-                    elemtary[j][i] = (matrix[j][i] * pivot) * (-1)
-                    savedmatrix(elemtary)
-                    temp2=matrix
-                    matrix = mult(elemtary, matrix)
-                    printelementary2(elemtary,temp2,matrix)
-                    elemtary = elemteryreset(matrix)
-                j+=1
-    return matrix
+    try:
+        solution = solve_linear_system(A, b)
+        A_inverse = matrix_inverse(A)
+        print(bcolors.OKBLUE, "\nSolution to the linear system: \n", solution, bcolors.ENDC)
+        print(bcolors.OKBLUE, "\nInverse of matrix A: \n", A_inverse)
+        print("=====================================================================================================================", bcolors.ENDC)
 
-
-def final2(matrix,elemtary):
-    size=len(matrix)
-    for i in range(len(matrix)-1,0,-1):
-        j = i - 1
-        while j >= 0:
-            pivot = matrix[i][i]
-            elemtary[j][i] = (matrix[j][i] * pivot) * (-1)
-            savedmatrix(elemtary)
-            temp=matrix
-            matrix = mult(elemtary, matrix)
-            printelementary2(elemtary,temp,matrix)
-            elemtary = elemteryreset(matrix)
-            j-=1
-    return matrix
-
-"""""
-def final3(matrix,elemtary):
-    for i in range(len(matrix)):
-        j = 0
-        pivot = matrix[i][i]
-        while j < i:
-
-            if matrix[j][i] != 0:
-                elemtary[j][i] = (matrix[j][i] * pivot) * (-1)
-                savedmatrix(elemtary)
-                printelementary(elemtary)
-                matrix = mult(elemtary, matrix)
-                elemtary = elemteryreset()
-            j += 1
-    return matrix
-"""""
-
-
-def mult(matrix1,matrix2):
-    res=[[0 for x in range(len(matrix2[0]))] for y in range(len(matrix1))]
-    size=len(matrix1)
-    for i in range(len(matrix1)):
-        for j in range(len(matrix2[0])):
-            for k in range(len(matrix2)):
-                res[i][j] += matrix1[i][k] * matrix2[k][j]
-    return res
-
-
-def addmat(matrix1,matrix2):
-    res=[[0 for x in range(len(matrix2[0]))] for y in range(len(matrix1))]
-    for i in range(len(matrix1)):
-        for j in range(len(matrix2[0])):
-            res[i][j] = matrix1[i][j] + matrix2[i][j]
-    return res
-
-def changerow(matrix,row1,row2):
-    temp=matrix[row1]
-    matrix[row1]=matrix[row2]
-    matrix[row2]=temp
-    return matrix
-
-
-def findpivot(matrix, elemtary):
-    biggest = 0
-    size = len(matrix)
-    for i in range(len(matrix)):
-        j = i
-        change = False
-        saved = matrix[i][i]
-        while j < size:
-            if saved < matrix[j][i]:
-                biggest = j
-                saved = matrix[biggest][i]
-                change = True
-            j += 1
-        if change:
-            elemtary = changerow(elemtary, i, biggest)
-            temp=matrix
-            savedmatrix(elemtary)
-            matrix = mult(elemtary, matrix)
-            printelementary2(elemtary,temp,matrix)
-        elemtary=elemteryreset(matrix)
-    return matrix
-
-
-def savedmatrix(matrix):
-    totalmatrix.append(matrix)
-
-def printelementary2(matrix1,matrix2,matrix3):
-    for i in range(len(matrix1)):
-        if i==1:
-            print(matrix1[i],"    *    ",matrix2[i],"    =    ",matrix3[i])
-        else:
-            print(matrix1[i], "          ", matrix2[i], "         ", matrix3[i])
-    print()
-    print("*******************************************************")
-    print()
-
-
-def printelementary(matrix):
-    for i in range(len(matrix)):
-        print(matrix[i])
-    print()
-    print("*******************************************************")
-    print()
-
-
-
-def elemteryreset(matrix):
-    return createlemtary(matrix)
-
-
-def opposite():
-    calc = [[0 for x in range(len(totalmatrix[0]))] for y in range(len(totalmatrix[0]))]
-    calc=mult(totalmatrix[0],totalmatrix[1])
-    for i in range(2,len(totalmatrix)):
-        calc=mult(calc,totalmatrix[i])
-    return calc
-
-
-def opposite2():
-    calc = [[0 for x in range(len(totalmatrix[0]))] for y in range(len(totalmatrix[0]))]
-    calc=mult(totalmatrix[len(totalmatrix)-1],totalmatrix[len(totalmatrix)-2])
-    for i in range(len(totalmatrix)-3,-1,-1):
-        calc=mult(calc,totalmatrix[i])
-    return calc
-
-
-def determinantOfMatrix(mat, n):
-    temp = [0] * n
-    total = 1
-    det = 1
-    for i in range(0, n):
-        index = i
-        while mat[index][i] == 0 and index < n:
-            index += 1
-        if (index == n):
-            continue
-        if (index != i):
-            for j in range(0, n):
-                mat[index][j], mat[i][j] = mat[i][j], mat[index][j]
-            det = det * int(pow(-1, index - i))
-        for j in range(0, n):
-            temp[j] = mat[i][j]
-        for j in range(i + 1, n):
-            num1 = temp[i]  # value of diagonal element
-            num2 = mat[j][i]  # value of next row element
-            for k in range(0, n):
-                mat[j][k] = (num1 * mat[j][k]) - (num2 * temp[k])
-            total = total * num1  # Det(kA)=kDet(A);
-    for i in range(0, n):
-        det = det * mat[i][i]
-    if int(det / total)==0:
-        print("The determinate is 0 and there is no inverse matrix")
-    else:
-        return int(det / total)
-
-
-def determinate(matrix,n):
-    if n==2:
-        sum=matrix[0][0]*matrix[1][1]-matrix[0][1]*matrix[1][0]
-        return sum
-    if n>2:
-        sum=0
-        for i in range(len(matrix[0])):
-            if i%2==0:
-                sum=(sum+(matrix[i][0])*(determinate((smalldet(matrix,i,0)),n-1)))
-            else:
-                sum = (sum - (matrix[i][0]) * (determinate((smalldet(matrix, i, 0)), n - 1)))
-        return sum
-
-
-def smalldet(matrix,n,m):
-    newmatrix=[]
-    for i in range(len(matrix)):
-        newtemp=[]
-        for j in range(len(matrix)):
-            if i!=n and j!=m:
-                newtemp.append(matrix[i][j])
-        if len(newtemp)>0:
-            newmatrix.append(newtemp)
-    return newmatrix
-
-def seperate(matrix):
-    newmat=[]
-    for i in range(len(matrix)):
-        newmat2=[]
-        for j in range(len(matrix[0])-1):
-            newmat2.append(matrix[i][j])
-        newmat.append(newmat2)
-    return newmat
-
-
-def createlemtary(matrix):
-    big=[]
-    if len(matrix)!=len(matrix[0]):
-        size=len(matrix[0])-1
-        for i in range(size):
-            small=[]
-            for j in range(size):
-                if i==j:
-                    small.append(1)
-                else:
-                    small.append(0)
-            big.append(small)
-        return big
-    else:
-        size = len(matrix[0])
-        for i in range(size):
-            small = []
-            for j in range(size):
-                if i == j:
-                    small.append(1)
-                else:
-                    small.append(0)
-            big.append(small)
-        return big
-
-
-def printfinalanswer(matrix):
-    for i in range(len(matrix)):
-        print("x",i+1," = ",matrix[i][3])
-
-    print()
-    print("*******************************************************")
-    print()
-
-
-
-
-def process(matrix):
-    elementary=createlemtary(matrix)
-    if len(matrix)!=len(matrix[0]):
-        matrix2=seperate(matrix)
-        if determinate(matrix2, len(matrix2)) == 0:
-            print("Cant find the solution, no inverse matrix")
-        else:
-            matrix = findpivot(matrix, elementary)
-            elementary = elemteryreset(matrix)
-            matrix = final(matrix, elementary)
-            elementary = elemteryreset(matrix)
-            matrix = final2(matrix, elementary)
-            printfinalanswer(matrix)
-            print("total elementarys number :",len(totalmatrix))
-
-    else:
-        if determinate(matrix, len(matrix)) == 0:
-            print("Cant find the solution, no inverse matrix")
-        else:
-            matrix = findpivot(matrix, elementary)
-            elementary = elemteryreset(matrix)
-            matrix = final(matrix, elementary)
-            elementary = elemteryreset(matrix)
-            matrix = final2(matrix, elementary)
-            printfinalanswer(matrix)
-            print(len(totalmatrix))
-
-
-lottery(input(" endter id"))
-totalmatrix=[]
-lmt = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-mat3=[[1,1,1],[1,2,4],[1,3,9]]
-process(mat3)
-
+    except ValueError as e:
+        print(str(e))
