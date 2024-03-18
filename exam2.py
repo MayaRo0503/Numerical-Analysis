@@ -170,11 +170,11 @@ def find_all_roots(f, a, b, tol=1e-6):
 if __name__ == '__main__':
 
     np.set_printoptions(suppress=True, precision=4)
-    A_b = [[-1, 1, 3, -3, 1, 3],
-           [3, -3, -4, 2, 3, 8],
-           [2, 1, -5, -3, 5, 2],
-           [-5, -6, 4, 1, 3, 14],
-           [3, -2, -2, -3, 5, 6]]
+    A_b = [[-1, 1, 3, -3, 1, -1],
+           [3, -3, -4, 2, 3, 18],
+           [2, 1, -5, -3, 5, 6],
+           [-5, -6, 4, 1, 3, 22],
+           [3, -2, -2, -3, 5, 10]]
 
 
     result = gaussianElimination(A_b)
@@ -185,7 +185,7 @@ if __name__ == '__main__':
         for x in result:
             print("{:.6f}".format(x))
     #print("the norm of the matrix plus the question number: ", norm(A_b) + 3)
-    f = lambda x: (1 * x ** 5 - 4 * x ** 2 - 1) / (5 * x ** 3 + 1)
+    f = lambda x: (1 * x ** 5 - 6 * x ** 2 - 1) / (7 * x ** 3 + 1)
 
     # Adjust the interval to avoid the singularity
     a = -2
