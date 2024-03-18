@@ -1,8 +1,8 @@
 #Date:
 #Group members: Andrey Romanchuk ID;Shahar Dahan ID;Maya Rozenberg ID
 #Source Git: https://github.com/lihiSabag/Numerical-Analysis-2023.git
-#Private Git: https://github.com/AndreyRomanchuk91/SecondYear/tree/master/Numerical%20analysis
-#Name: Andrey Romanchuk
+#Private Git: https://github.com/MayaRo0503/Numerical-Analysis
+#Name: Maya Rozenberg ID:313381600
 
 import numpy as np
 
