@@ -1,0 +1,54 @@
+import numpy as np
+
+
+def linear_interpolation(points, x):
+    """Linear interpolation for any two points."""
+    (x0, y0), (x1, y1) = points
+    return y0 + (y1 - y0) * (x - x0) / (x1 - x0)
+
+
+def polynomial_interpolation(points, x):
+    """Polynomial interpolation for exactly three points."""
+    x_coords, y_coords = zip(*points)
+    coefficients = np.polyfit(x_coords, y_coords, 2)
+    polynomial = np.poly1d(coefficients)
+    return polynomial(x)
+
+
+def lagrange_interpolation(points, x):
+    """Lagrange interpolation for exactly three points."""
+
+    def L(k, x):
+        x_coords, _ = zip(*points)
+        return np.prod([(x - x_coords[m]) / (x_coords[k] - x_coords[m]) for m in range(len(points)) if m != k])
+
+    return sum(y * L(i, x) for i, (x_i, y) in enumerate(points))
+
+
+def main():
+    # Define pairs of points
+    points = [(1, 2), (3, 4), (5, 7)]  # Example points
+
+    # Ask for the x value
+    x_value = float(input("Enter the x value for which you want to find the y value: "))
+
+    # Ask the user for the interpolation method
+    method = input("Choose the interpolation method (linear, polynomial, lagrange): ").lower()
+
+    # Find and print the y value using the selected method
+    if method == "linear" and len(points) >= 2:
+        # For linear interpolation, use any two points
+        y_value = linear_interpolation(points[:2], x_value)
+    elif method == "polynomial" and len(points) == 3:
+        y_value = polynomial_interpolation(points, x_value)
+    elif method == "lagrange" and len(points) == 3:
+        y_value = lagrange_interpolation(points, x_value)
+    else:
+        print("Invalid input or not enough points for the selected method.")
+        return
+
+    print(f"The approximate y value for x = {x_value} using {method} interpolation is: {y_value}")
+
+
+if __name__ == "__main__":
+    main()
